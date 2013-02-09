@@ -54,18 +54,18 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.csv("data.csv", function(error, data) {
-  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "State"; }));
+d3.csv("allharvests.csv", function(error, data) {
+  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "Property" && key !== "Date" && key !== "Total"; }));
 
   data.forEach(function(d) {
     var y0 = 0;
-    d.ages = color.domain().map(function(name) { return {name: name, y0: y0, y1: y0 += +d[name]}; });
-    d.total = d.ages[d.ages.length - 1].y1;
+    d.payments = color.domain().map(function(name) { return {name: name, y0: y0, y1: y0 += +d[name]}; });
+    d.total = d.payments[d.payments.length - 1].y1;
   });
 
   data.sort(function(a, b) { return b.total - a.total; });
 
-  x.domain(data.map(function(d) { return d.State; }));
+  x.domain(data.map(function(d) { return d.Property; }));
   y.domain([0, d3.max(data, function(d) { return d.total; })]);
 
   svg.append("g")
@@ -81,16 +81,16 @@ d3.csv("data.csv", function(error, data) {
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("Population");
+      .text("Dollars");
 
   var state = svg.selectAll(".state")
       .data(data)
     .enter().append("g")
       .attr("class", "g")
-      .attr("transform", function(d) { return "translate(" + x(d.State) + ",0)"; });
+      .attr("transform", function(d) { return "translate(" + x(d.Property) + ",0)"; });
 
   state.selectAll("rect")
-      .data(function(d) { return d.ages; })
+      .data(function(d) { return d.payments; })
     .enter().append("rect")
       .attr("width", x.rangeBand())
       .attr("y", function(d) { return y(d.y1); })
